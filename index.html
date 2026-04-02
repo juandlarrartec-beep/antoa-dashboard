@@ -399,6 +399,57 @@
     }
 
     /* ══════════════════════════════════════
+       MOBILE TOOLTIP — posición fija, nunca se corta
+    ══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      /* KPI: una columna en mobile para que los datos respiren */
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .kpi-card { height: auto; min-height: 110px; }
+      .kpi-inner { padding: 18px 16px 14px; }
+
+      /* Tooltip: overlay fijo centrado en pantalla */
+      .kpi-tooltip {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translate(-50%, -50%) !important;
+        width: min(320px, 90vw) !important;
+        z-index: 9000 !important;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      }
+      .kpi-tooltip::before { display: none; } /* Ocultar flechita en mobile */
+
+      /* Backdrop oscuro detrás del tooltip en mobile */
+      .kpi-tooltip.show::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: -1;
+        animation: tip-in .18s ease both;
+      }
+
+      .tip-title  { font-size: 13px; margin-bottom: 10px; }
+      .tip-body   { font-size: 13px; line-height: 1.7; }
+      .tip-example{ font-size: 12px; margin-top: 12px; }
+
+      /* Gráfico de líneas: altura reducida para no sobrepasar pantalla */
+      #chart-evolucion { max-height: 220px; }
+    }
+
+    /* ── Phone angosto (≤ 400px): una sola columna ── */
+    @media (max-width: 400px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .kpi-card { min-height: 90px; }
+    }
+
+    /* ══════════════════════════════════════
        SPLASH SCREEN
     ══════════════════════════════════════ */
     @keyframes splash-blob-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -1028,14 +1079,17 @@ function toggleTip(id, e) {
   e.stopPropagation();
   const tip = document.getElementById(id);
   const isOpen = tip.classList.contains('show');
-  // Cerrar todos
   document.querySelectorAll('.kpi-tooltip.show').forEach(t => t.classList.remove('show'));
   if (!isOpen) tip.classList.add('show');
 }
-// Click fuera cierra todos
 document.addEventListener('click', () => {
   document.querySelectorAll('.kpi-tooltip.show').forEach(t => t.classList.remove('show'));
 });
+document.addEventListener('touchstart', (e) => {
+  if (!e.target.closest('.kpi-tooltip') && !e.target.closest('.kpi-info-btn')) {
+    document.querySelectorAll('.kpi-tooltip.show').forEach(t => t.classList.remove('show'));
+  }
+}, { passive: true });
 
 function syncBn(activeId) {
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
