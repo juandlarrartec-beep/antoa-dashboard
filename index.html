@@ -302,6 +302,102 @@
     .costo-row:last-child { border-bottom:none; }
     .costo-row .cn { color:var(--sub); }
     .costo-row .ca { font-weight:600; }
+    /* ══════════════════════════════════════════
+       RESPONSIVE — Mobile first
+       Breakpoints: 768px tablet, 480px phone
+    ══════════════════════════════════════════ */
+
+    /* ── Bottom nav (mobile only) ── */
+    .bottom-nav {
+      display:none;
+      position:fixed; bottom:0; left:0; right:0; z-index:200;
+      background:var(--surface); border-top:1px solid var(--border);
+      padding:8px 0 env(safe-area-inset-bottom,8px);
+    }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bn-item {
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+      padding:6px 20px; border:none; background:none; cursor:pointer;
+      font-family:'Poppins',sans-serif; font-size:10px; font-weight:500;
+      color:var(--sub); transition:color .18s;
+    }
+    .bn-item svg { width:22px; height:22px; }
+    .bn-item.active { color:var(--teal); }
+
+    /* ── Tablet (≤ 900px) ── */
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 0px; }
+
+      .sidebar { display:none; }
+      .main    { margin-left:0; padding:20px 18px 80px; }
+      .bottom-nav { display:block; }
+
+      .kpi-grid { grid-template-columns:repeat(3,1fr); gap:12px; }
+      .kpi-card { height:110px; }
+      .kpi-value { font-size:20px; }
+      .kpi-sub   { font-size:12px; }
+
+      .grid-2 { grid-template-columns:1fr; }
+      .hon-grid { grid-template-columns:1fr; }
+
+      .page-header { flex-wrap:wrap; gap:10px; }
+      .page-header h1 { font-size:18px; }
+      .header-right { width:100%; justify-content:flex-end; }
+
+      .total-banner { flex-direction:column; gap:20px; padding:24px 20px; }
+      .tb-amount { font-size:38px; }
+      .tb-right  { min-width:unset; width:100%; }
+
+      table { font-size:11px; }
+      thead th { padding:7px 8px; font-size:9px; }
+      tbody td { padding:8px; }
+    }
+
+    /* ── Phone (≤ 480px) ── */
+    @media (max-width: 480px) {
+      .main { padding:14px 12px 80px; }
+
+      .kpi-grid { grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+      .kpi-card { height:100px; }
+      .kpi-inner { padding:16px 14px; }
+      .kpi-label { font-size:9px; margin-bottom:8px; }
+      .kpi-value { font-size:18px; margin-bottom:5px; }
+      .kpi-sub   { font-size:11px; }
+
+      /* Donut charts: más pequeños en phone */
+      .dc-svg-outer { width:160px !important; height:160px !important; }
+      .dc-center-val { font-size:16px; }
+
+      .card { padding:16px; }
+      .card-title { font-size:13px; }
+
+      .page-header h1 { font-size:16px; }
+
+      .total-banner { padding:18px 16px; }
+      .tb-amount { font-size:32px; }
+      .tb-label  { font-size:10px; }
+      .tb-sub    { font-size:12px; }
+      .tb-row    { font-size:12px; padding:7px 0; }
+
+      /* Tabla: ocultar columnas secundarias en mobile */
+      table th:nth-child(n+6), table td:nth-child(n+6) { display:none; }
+      table th:nth-child(5), table td:nth-child(5) { display:none; }
+
+      .year-toggle { font-size:12px; padding:9px 12px; }
+
+      .costo-row { font-size:12px; }
+      .costo-row .ca { font-size:12px; }
+
+      .month-select { font-size:12px; min-width:140px; padding:8px 30px 8px 12px; }
+    }
+
+    /* ── Muy pequeño (≤ 360px) ── */
+    @media (max-width: 360px) {
+      .kpi-grid { grid-template-columns:1fr 1fr; gap:8px; }
+      .kpi-value { font-size:16px; }
+      .tb-amount { font-size:28px; }
+    }
+
   </style>
 </head>
 <body>
@@ -576,6 +672,24 @@
 </div><!-- /honorarios -->
 </main>
 
+<!-- ═══ BOTTOM NAV (mobile) ═══ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bn-item active" id="bn-dashboard" onclick="showPage('dashboard',this);syncBn('bn-dashboard')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      Dashboard
+    </button>
+    <button class="bn-item" id="bn-honorarios" onclick="showPage('honorarios',this);syncBn('bn-honorarios')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Honorarios
+    </button>
+    <button class="bn-item" onclick="toggleTheme()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 110 10 5 5 0 010-10z"/></svg>
+      Tema
+    </button>
+  </div>
+</nav>
+
 <script>
 /* ════════════════════════════════════════
    GOOGLE SHEETS — datos en vivo
@@ -811,7 +925,14 @@ function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function syncBn(activeId) {
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  const el = document.getElementById(activeId);
+  if (el) el.classList.add('active');
 }
 
 /* ════ COLLAPSIBLE ════ */
