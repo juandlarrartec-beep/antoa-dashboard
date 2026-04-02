@@ -489,6 +489,71 @@
     /* Contenido principal: entra animado tras el splash */
     .main-content-wrapper { animation:content-enter .5s ease both; }
 
+    /* ══════════════════════════════════════
+       KPI TOOLTIP — ventanita explicativa
+    ══════════════════════════════════════ */
+    @keyframes tip-in {
+      from { opacity:0; transform:translateY(6px) scale(.96); }
+      to   { opacity:1; transform:translateY(0)   scale(1);   }
+    }
+
+    .kpi-info-btn {
+      position:absolute; top:10px; right:10px; z-index:5;
+      width:20px; height:20px; border-radius:50%;
+      background:rgba(255,255,255,0.12); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700; color:rgba(255,255,255,0.55);
+      transition:background .18s, color .18s;
+      font-family:'Poppins',sans-serif; line-height:1;
+    }
+    [data-theme="light"] .kpi-info-btn {
+      background:rgba(0,0,0,0.06); color:#aaa;
+    }
+    .kpi-info-btn:hover { background:var(--teal); color:#fff; }
+
+    .kpi-tooltip {
+      display:none;
+      position:absolute; z-index:100;
+      top:calc(100% + 10px); right:0;
+      width:220px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px 16px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.22);
+      animation:tip-in .18s ease both;
+    }
+    /* Flechita superior */
+    .kpi-tooltip::before {
+      content:'';
+      position:absolute; top:-7px; right:18px;
+      width:13px; height:13px;
+      background:var(--surface);
+      border-left:1px solid var(--border);
+      border-top:1px solid var(--border);
+      transform:rotate(45deg);
+      border-radius:2px 0 0 0;
+    }
+    .kpi-tooltip.show { display:block; }
+
+    /* Si el card está en el lado derecho, el tooltip abre hacia la izquierda */
+    .kpi-tooltip.left { right:auto; left:0; }
+    .kpi-tooltip.left::before { right:auto; left:18px; }
+
+    .tip-title {
+      font-size:11px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.5px; color:var(--teal); margin-bottom:8px;
+    }
+    .tip-body {
+      font-size:12px; line-height:1.6; color:var(--gris-texto);
+    }
+    .tip-body strong { color:var(--teal); font-weight:600; }
+    .tip-example {
+      margin-top:8px; padding:7px 10px;
+      background:var(--th-bg); border-radius:7px;
+      font-size:11px; color:var(--sub); line-height:1.5;
+    }
+
   </style>
 </head>
 <body>
@@ -581,36 +646,85 @@
   </div>
 
   <div class="kpi-grid">
+
+    <!-- Leads ADS -->
     <div class="kpi-card c-celeste">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-leads',event)">i</button>
+      <div class="kpi-tooltip" id="tip-leads">
+        <div class="tip-title">¿Qué son los Leads?</div>
+        <div class="tip-body">Son las <strong>personas que llegaron a través de los anuncios</strong> de Meta (Facebook e Instagram) y dejaron sus datos para recibir más info.</div>
+        <div class="tip-example">📌 Si hay 29 leads, significa que 29 personas vieron tu anuncio y quisieron saber más sobre Antoá ese mes.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Leads ADS</div><div class="kpi-value" id="k-leads">—</div><div class="kpi-sub">captados en el mes</div></div>
     </div>
+
+    <!-- Ventas cerradas -->
     <div class="kpi-card c-rosa">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-ventas',event)">i</button>
+      <div class="kpi-tooltip" id="tip-ventas">
+        <div class="tip-title">¿Qué son las Ventas cerradas?</div>
+        <div class="tip-body">Son los leads que <strong>se convirtieron en clientes reales</strong> y compraron un plan o tratamiento ese mes.</div>
+        <div class="tip-example">📌 El <strong>% de cierre</strong> muestra qué tan bien se convierte: 62% significa que de cada 10 leads, ~6 compran.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Ventas cerradas</div><div class="kpi-value" id="k-ventas">—</div><div class="kpi-sub">cierre: <strong id="k-cierre">—</strong></div></div>
     </div>
+
+    <!-- Total ventas reales -->
     <div class="kpi-card c-teal">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-total',event)">i</button>
+      <div class="kpi-tooltip" id="tip-total">
+        <div class="tip-title">¿Qué es el Total de Ventas?</div>
+        <div class="tip-body">Es la <strong>plata que efectivamente ingresó</strong> al negocio ese mes — lo que los clientes pagaron por sus planes y tratamientos.</div>
+        <div class="tip-example">📌 No incluye lo que falta pagar. Solo lo cobrado real. Se muestra en pesos uruguayos y en dólares.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Total ventas reales</div><div class="kpi-value" id="k-total-pesos">—</div><div class="kpi-sub" id="k-total-usd">—</div></div>
     </div>
+
+    <!-- Inversión ADS -->
     <div class="kpi-card c-mint">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-ads',event)">i</button>
+      <div class="kpi-tooltip left" id="tip-ads">
+        <div class="tip-title">¿Qué es la Inversión ADS?</div>
+        <div class="tip-body">Es el <strong>dinero invertido en anuncios</strong> de Meta (Facebook/Instagram) para atraer nuevos clientes a Antoá.</div>
+        <div class="tip-example">📌 El <strong>ROAS</strong> muestra cuánto retorno generó esa inversión. ROAS 34× significa que por cada $1 invertido, volvieron $34 en ventas.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Inversión ADS</div><div class="kpi-value" id="k-inversion">—</div><div class="kpi-sub" id="k-roas">—</div></div>
     </div>
+
+    <!-- Neto Antoá -->
     <div class="kpi-card c-rclaro">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-neto',event)">i</button>
+      <div class="kpi-tooltip left" id="tip-neto">
+        <div class="tip-title">¿Qué es el Neto?</div>
+        <div class="tip-body">Es lo que le <strong>queda al negocio después de descontar todos los gastos</strong>: alquiler, sueldos, servicios, publicidad y honorarios de gestión.</div>
+        <div class="tip-example">📌 Si es positivo ✅ el negocio ganó plata. Si es negativo 🔴 los gastos fueron más que las ventas ese mes.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Neto Antoá</div><div class="kpi-value" id="k-neto">—</div><div class="kpi-sub" id="k-neto-usd">—</div></div>
     </div>
+
+    <!-- Dólar -->
     <div class="kpi-card c-gris">
       <span class="kpi-gp"></span><span class="kpi-gp kpi-gp-blur"></span>
       <span class="kpi-blobs"><span class="kpi-blob-tl"></span><span class="kpi-blob-br"></span></span>
+      <button class="kpi-info-btn" onclick="toggleTip('tip-dolar',event)">i</button>
+      <div class="kpi-tooltip left" id="tip-dolar">
+        <div class="tip-title">¿Para qué sirve el Dólar?</div>
+        <div class="tip-body">Es el <strong>tipo de cambio usado ese mes</strong> para convertir los pesos uruguayos a dólares americanos.</div>
+        <div class="tip-example">📌 Sirve para comparar los resultados del negocio en una moneda estable. Todos los USD del dashboard usan este valor.</div>
+      </div>
       <div class="kpi-inner"><div class="kpi-label">Dólar del mes</div><div class="kpi-value" id="k-dolar">—</div><div class="kpi-sub">tasa de conversión</div></div>
     </div>
+
   </div>
 
   <div class="grid-1">
@@ -908,6 +1022,20 @@ function showPage(id, btn) {
   if (btn) btn.classList.add('active');
   window.scrollTo(0,0);
 }
+
+/* ════ KPI TOOLTIPS ════ */
+function toggleTip(id, e) {
+  e.stopPropagation();
+  const tip = document.getElementById(id);
+  const isOpen = tip.classList.contains('show');
+  // Cerrar todos
+  document.querySelectorAll('.kpi-tooltip.show').forEach(t => t.classList.remove('show'));
+  if (!isOpen) tip.classList.add('show');
+}
+// Click fuera cierra todos
+document.addEventListener('click', () => {
+  document.querySelectorAll('.kpi-tooltip.show').forEach(t => t.classList.remove('show'));
+});
 
 function syncBn(activeId) {
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
