@@ -398,9 +398,114 @@
       .tb-amount { font-size:28px; }
     }
 
+    /* ══════════════════════════════════════
+       SPLASH SCREEN
+    ══════════════════════════════════════ */
+    @keyframes splash-blob-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes splash-fade-in   { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+    @keyframes splash-pulse     { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(1.06)} }
+    @keyframes splash-exit      { 0%{opacity:1;transform:scale(1)} 60%{opacity:1;transform:scale(1.08)} 100%{opacity:0;transform:scale(1.15)} }
+    @keyframes content-enter    { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+    .splash {
+      position:fixed; inset:0; z-index:9999;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:var(--bg);
+      animation:splash-fade-in .5s ease both;
+    }
+    .splash.exit { animation:splash-exit .6s ease forwards; pointer-events:none; }
+
+    .splash-blob-wrap {
+      position:relative; width:200px; height:200px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:32px;
+    }
+    .splash-ring {
+      position:absolute; inset:0; display:grid; place-items:center;
+      animation:splash-blob-spin 4s linear infinite;
+    }
+    .splash-ring span {
+      --bw:11px;
+      --br:115% 140% 145% 110% / 125% 140% 110% 125%;
+      position:absolute; display:block; width:200px; height:200px;
+      border-radius:var(--br); border:var(--bw) solid transparent;
+      background-size:calc(100% + var(--bw)*2); background-repeat:no-repeat; background-position:center;
+      -webkit-mask-image:linear-gradient(transparent,transparent),linear-gradient(black,white);
+      mask-image:linear-gradient(transparent,transparent),linear-gradient(black,white);
+      -webkit-mask-clip:padding-box,border-box; mask-clip:padding-box,border-box;
+      -webkit-mask-composite:destination-in; mask-composite:intersect;
+      mix-blend-mode:screen; filter:blur(1.5px);
+    }
+    .splash-ring .lb1{background-color:#02aab2;background-image:linear-gradient(#02aab2,#46b8d6,#02aab2);transform:rotate(30deg) scale(1.03)}
+    .splash-ring .lb2{background-color:#f39ea5;background-image:linear-gradient(#f39ea5,#eac1c7,#f39ea5);transform:rotate(75deg) scale(0.96)}
+    .splash-ring .lb3{background-color:#95d0cb;background-image:linear-gradient(#95d0cb,#46b8d6,#95d0cb);transform:rotate(120deg) scale(0.98)}
+    .splash-ring .lb4{background-color:#f39ea5;background-image:linear-gradient(#f39ea5,#02aab2,#f39ea5);transform:rotate(165deg) scale(1.01)}
+
+    .splash-logo {
+      position:relative; z-index:2; width:130px; height:130px;
+      object-fit:contain; animation:splash-pulse 2s ease-in-out infinite;
+    }
+    .splash-tagline {
+      font-size:13px; font-weight:500; letter-spacing:2px;
+      color:var(--sub); text-transform:uppercase;
+      animation:splash-fade-in .8s .4s ease both;
+    }
+    .splash-bar-wrap {
+      width:140px; height:3px; background:var(--border);
+      border-radius:99px; margin-top:20px; overflow:hidden;
+      animation:splash-fade-in .8s .6s ease both;
+    }
+    @keyframes bar-fill { from{width:0%} to{width:100%} }
+    .splash-bar {
+      height:100%; border-radius:99px;
+      background:linear-gradient(90deg,var(--teal),var(--celeste));
+      animation:bar-fill 1.6s .6s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    /* ══════════════════════════════════════
+       MOBILE TOP BAR (solo mobile)
+    ══════════════════════════════════════ */
+    .mobile-topbar {
+      display:none;
+      align-items:center; justify-content:center;
+      padding:20px 0 16px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:20px;
+    }
+    .mobile-topbar .logo-blob-wrap {
+      width:90px; height:90px;
+    }
+    .mobile-topbar .logo-blob-ring span {
+      width:90px; height:90px;
+    }
+    .mobile-topbar .logo-isotipo { width:60px; height:60px; }
+    .mobile-topbar .logo-fallback { width:60px; height:60px; font-size:22px; }
+
+    @media (max-width: 900px) {
+      .mobile-topbar { display:flex; }
+      .main { padding-top:0; }
+    }
+
+    /* Contenido principal: entra animado tras el splash */
+    .main-content-wrapper { animation:content-enter .5s ease both; }
+
   </style>
 </head>
 <body>
+
+<!-- ═══ SPLASH SCREEN ═══ -->
+<div class="splash" id="splash">
+  <div class="splash-blob-wrap">
+    <div class="splash-ring">
+      <span class="lb1"></span><span class="lb2"></span>
+      <span class="lb3"></span><span class="lb4"></span>
+    </div>
+    <img class="splash-logo" src="assets/isotipo.png" alt="Antoá"
+         onerror="this.style.display='none'">
+  </div>
+  <div class="splash-tagline">Centro Estético</div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+</div>
 
 <!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
@@ -432,6 +537,19 @@
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
+
+  <!-- Mobile top bar — solo visible en ≤900px -->
+  <div class="mobile-topbar">
+    <div class="logo-blob-wrap">
+      <div class="logo-blob-ring">
+        <span class="lb1"></span><span class="lb2"></span>
+        <span class="lb3"></span><span class="lb4"></span>
+      </div>
+      <img class="logo-isotipo" src="assets/isotipo.png" alt="Antoá"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="logo-fallback">A</div>
+    </div>
+  </div>
 
 <!-- ════════ DASHBOARD ════════ -->
 <div id="page-dashboard" class="page active">
@@ -796,6 +914,16 @@ function syncBn(activeId) {
   const el = document.getElementById(activeId);
   if (el) el.classList.add('active');
 }
+
+/* ════ SPLASH — se cierra a los 2.2s ════ */
+(function() {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  setTimeout(() => {
+    splash.classList.add('exit');
+    setTimeout(() => splash.remove(), 650);
+  }, 2200);
+})();
 
 /* ════ COLLAPSIBLE ════ */
 function toggleSection(id) {
