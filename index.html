@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -346,7 +346,7 @@
       <!-- Dark mode toggle -->
       <label class="theme-toggle" onclick="toggleTheme()">
         <span class="toggle-icon">☀️</span>
-        <div class="toggle-track" id="theme-track"><div class="toggle-thumb"></div></div>
+        <div class="toggle-track on" id="theme-track"><div class="toggle-thumb"></div></div>
         <span class="toggle-icon">🌙</span>
       </label>
       <select class="month-select" id="sel-dashboard" onchange="onMonthChange(this.value)">
@@ -798,7 +798,7 @@ const fmtU  = n => (n<0?'-':'')+'USD $'+Math.abs(n).toFixed(2);
 const fmtUr = n => 'USD $'+Math.round(n).toLocaleString('en-US');
 
 /* ════ DARK MODE ════ */
-let darkMode = false;
+let darkMode = true;
 function toggleTheme() {
   darkMode = !darkMode;
   document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
