@@ -473,7 +473,7 @@
     <div class="header-right">
       <label class="theme-toggle" onclick="toggleTheme()">
         <span class="toggle-icon">☀️</span>
-        <div class="toggle-track" id="theme-track-2"><div class="toggle-thumb"></div></div>
+        <div class="toggle-track on" id="theme-track-2"><div class="toggle-thumb"></div></div>
         <span class="toggle-icon">🌙</span>
       </label>
       <select class="month-select" id="sel-honorarios" onchange="renderHon(this.value)">
@@ -716,46 +716,46 @@ let PLACEHOLDER = {   /* shown while loading */
 };
 
 /* Kept so old code compiles while data loads */
-const _MONTHS_BACKUP = {
-  'may-25':{ label:'Mayo 2025',   leads:64,  ventas:17, cierre:26.56, total_pesos:189000,   total_usd:4548.74,  juan_pesos:116600,  mari_pesos:72400,   inversion:16439,    inv_usd:395.64,  roas:11.50, dolar:41.55, neto_pesos:52941,     neto_usd:1274.15,  fee_pesos:16620,    fee_fijo:800, tokens:0,     pend_ant:0      },
-  'jun-25':{ label:'Junio 2025',  leads:124, ventas:38, cierre:30.65, total_pesos:185390,   total_usd:4610.54,  juan_pesos:157700,  mari_pesos:27690,   inversion:20868,    inv_usd:518.98,  roas:8.88,  dolar:40.21, neto_pesos:26520,     neto_usd:659.54,   fee_pesos:35002,    fee_fijo:800, tokens:0,     pend_ant:117.41 },
-  'jul-25':{ label:'Julio 2025',  leads:139, ventas:35, cierre:24.82, total_pesos:181800,   total_usd:4532.54,  juan_pesos:142400,  mari_pesos:39400,   inversion:23600,    inv_usd:588.38,  roas:7.70,  dolar:40.11, neto_pesos:18537,     neto_usd:462.15,   fee_pesos:36663,    fee_fijo:800, tokens:0,     pend_ant:532.87 },
-  'ago-25':{ label:'Agosto 2025', leads:90,  ventas:23, cierre:25.56, total_pesos:149490,   total_usd:3736.32,  juan_pesos:111090,  mari_pesos:37100,   inversion:19340,    inv_usd:483.38,  roas:7.73,  dolar:40.01, neto_pesos:2413,      neto_usd:60.31,    fee_pesos:24736.80, fee_fijo:800, tokens:0,     pend_ant:16.46  },
-  'sep-25':{ label:'Sep 2025',    leads:112, ventas:47, cierre:41.96, total_pesos:257210,   total_usd:6443.14,  juan_pesos:215410,  mari_pesos:41800,   inversion:22591,    inv_usd:565.91,  roas:11.39, dolar:39.92, neto_pesos:84338.80,  neto_usd:2112.70,  fee_pesos:47280.20, fee_fijo:800, tokens:0,     pend_ant:251.82 },
-  'oct-25':{ label:'Oct 2025',    leads:182, ventas:66, cierre:36.26, total_pesos:409290,   total_usd:10261.75, juan_pesos:284590,  mari_pesos:124700,  inversion:25771.78, inv_usd:646.15,  roas:15.88, dolar:39.89, neto_pesos:217488.22, neto_usd:5452.88,  fee_pesos:63030,    fee_fijo:800, tokens:30.10, pend_ant:106.62 },
-  'nov-25':{ label:'Nov 2025',    leads:210, ventas:77, cierre:36.67, total_pesos:431930,   total_usd:11043.98, juan_pesos:360830,  mari_pesos:71100,   inversion:29288,    inv_usd:748.86,  roas:14.75, dolar:39.11, neto_pesos:222503,    neto_usd:5689.16,  fee_pesos:77139,    fee_fijo:800, tokens:20,    pend_ant:13.83  },
-  'dic-25':{ label:'Dic 2025',    leads:130, ventas:55, cierre:42.31, total_pesos:309340,   total_usd:7895.35,  juan_pesos:177940,  mari_pesos:131400,  inversion:22000,    inv_usd:561.51,  roas:14.06, dolar:39.18, neto_pesos:145193.20, neto_usd:3705.80,  fee_pesos:39146.80, fee_fijo:800, tokens:20,    pend_ant:57.91  },
-  'ene-26':{ label:'Enero 2026',  leads:64,  ventas:42, cierre:65.63, total_pesos:194040,   total_usd:5034.77,  juan_pesos:107540,  mari_pesos:86500,   inversion:10500,    inv_usd:272.44,  roas:18.48, dolar:38.54, neto_pesos:55561.20,  neto_usd:1441.65,  fee_pesos:24978.80, fee_fijo:800, tokens:80,    pend_ant:161.72 },
-  'feb-26':{ label:'Feb 2026',    leads:7,   ventas:16, cierre:null,  total_pesos:105240,   total_usd:2715.87,  juan_pesos:32640,   mari_pesos:72600,   inversion:0,        inv_usd:0,       roas:null,  dolar:38.75, neto_pesos:-4940.80,  neto_usd:-127.50,  fee_pesos:7180.80,  fee_fijo:900, tokens:50,    pend_ant:34.25  },
-  'mar-26':{ label:'Mar 2026',    leads:29,  ventas:18, cierre:62.07, total_pesos:111040,   total_usd:2742.41,  juan_pesos:65380,   mari_pesos:45660,   inversion:3198.36,  inv_usd:78.99,   roas:34.72, dolar:40.49, neto_pesos:-9541.96,  neto_usd:-235.66,  fee_pesos:14383.60, fee_fijo:800, tokens:30,    pend_ant:57     }
+/* Datos estáticos de respaldo — siempre disponibles sin fetch */
+const STATIC_MONTHS = {
+  'may-25':{ label:'Mayo 2025',   short:'May 25', sortKey:202505, leads:64,  ventas:17, cierre:26.56, total_pesos:189000,   total_usd:4548.74,  juan_pesos:116600,  mari_pesos:72400,   inversion:16439,    inv_usd:395.64,  roas:11.50, dolar:41.55, neto_pesos:52941,     neto_usd:1274.15,  fee_pesos:16620,    fee_fijo:800, tokens:0,     pend_ant:0      },
+  'jun-25':{ label:'Junio 2025',  short:'Jun 25', sortKey:202506, leads:124, ventas:38, cierre:30.65, total_pesos:185390,   total_usd:4610.54,  juan_pesos:157700,  mari_pesos:27690,   inversion:20868,    inv_usd:518.98,  roas:8.88,  dolar:40.21, neto_pesos:26520,     neto_usd:659.54,   fee_pesos:35002,    fee_fijo:800, tokens:0,     pend_ant:117.41 },
+  'jul-25':{ label:'Julio 2025',  short:'Jul 25', sortKey:202507, leads:139, ventas:35, cierre:24.82, total_pesos:181800,   total_usd:4532.54,  juan_pesos:142400,  mari_pesos:39400,   inversion:23600,    inv_usd:588.38,  roas:7.70,  dolar:40.11, neto_pesos:18537,     neto_usd:462.15,   fee_pesos:36663,    fee_fijo:800, tokens:0,     pend_ant:532.87 },
+  'ago-25':{ label:'Agosto 2025', short:'Ago 25', sortKey:202508, leads:90,  ventas:23, cierre:25.56, total_pesos:149490,   total_usd:3736.32,  juan_pesos:111090,  mari_pesos:37100,   inversion:19340,    inv_usd:483.38,  roas:7.73,  dolar:40.01, neto_pesos:2413,      neto_usd:60.31,    fee_pesos:24736.80, fee_fijo:800, tokens:0,     pend_ant:16.46  },
+  'sep-25':{ label:'Sep 2025',    short:'Sep 25', sortKey:202509, leads:112, ventas:47, cierre:41.96, total_pesos:257210,   total_usd:6443.14,  juan_pesos:215410,  mari_pesos:41800,   inversion:22591,    inv_usd:565.91,  roas:11.39, dolar:39.92, neto_pesos:84338.80,  neto_usd:2112.70,  fee_pesos:47280.20, fee_fijo:800, tokens:0,     pend_ant:251.82 },
+  'oct-25':{ label:'Oct 2025',    short:'Oct 25', sortKey:202510, leads:182, ventas:66, cierre:36.26, total_pesos:409290,   total_usd:10261.75, juan_pesos:284590,  mari_pesos:124700,  inversion:25771.78, inv_usd:646.15,  roas:15.88, dolar:39.89, neto_pesos:217488.22, neto_usd:5452.88,  fee_pesos:63030,    fee_fijo:800, tokens:30.10, pend_ant:106.62 },
+  'nov-25':{ label:'Nov 2025',    short:'Nov 25', sortKey:202511, leads:210, ventas:77, cierre:36.67, total_pesos:431930,   total_usd:11043.98, juan_pesos:360830,  mari_pesos:71100,   inversion:29288,    inv_usd:748.86,  roas:14.75, dolar:39.11, neto_pesos:222503,    neto_usd:5689.16,  fee_pesos:77139,    fee_fijo:800, tokens:20,    pend_ant:13.83  },
+  'dic-25':{ label:'Dic 2025',    short:'Dic 25', sortKey:202512, leads:130, ventas:55, cierre:42.31, total_pesos:309340,   total_usd:7895.35,  juan_pesos:177940,  mari_pesos:131400,  inversion:22000,    inv_usd:561.51,  roas:14.06, dolar:39.18, neto_pesos:145193.20, neto_usd:3705.80,  fee_pesos:39146.80, fee_fijo:800, tokens:20,    pend_ant:57.91  },
+  'ene-26':{ label:'Enero 2026',  short:'Ene 26', sortKey:202601, leads:64,  ventas:42, cierre:65.63, total_pesos:194040,   total_usd:5034.77,  juan_pesos:107540,  mari_pesos:86500,   inversion:10500,    inv_usd:272.44,  roas:18.48, dolar:38.54, neto_pesos:55561.20,  neto_usd:1441.65,  fee_pesos:24978.80, fee_fijo:800, tokens:80,    pend_ant:161.72 },
+  'feb-26':{ label:'Feb 2026',    short:'Feb 26', sortKey:202602, leads:7,   ventas:16, cierre:null,  total_pesos:105240,   total_usd:2715.87,  juan_pesos:32640,   mari_pesos:72600,   inversion:0,        inv_usd:0,       roas:null,  dolar:38.75, neto_pesos:-4940.80,  neto_usd:-127.50,  fee_pesos:7180.80,  fee_fijo:900, tokens:50,    pend_ant:34.25  },
+  'mar-26':{ label:'Mar 2026',    short:'Mar 26', sortKey:202603, leads:29,  ventas:18, cierre:62.07, total_pesos:111040,   total_usd:2742.41,  juan_pesos:65380,   mari_pesos:45660,   inversion:3198.36,  inv_usd:78.99,   roas:34.72, dolar:40.49, neto_pesos:-9541.96,  neto_usd:-235.66,  fee_pesos:14383.60, fee_fijo:800, tokens:30,    pend_ant:57     }
 };
 
-/* Aggregate (histórico) */
-const ALL = Object.values(MONTHS);
-const HIST = {
-  label:'Histórico total',
-  leads:       ALL.reduce((s,d)=>s+d.leads,0),
-  ventas:      ALL.reduce((s,d)=>s+d.ventas,0),
-  cierre:      null, // computed below
-  total_pesos: ALL.reduce((s,d)=>s+d.total_pesos,0),
-  total_usd:   ALL.reduce((s,d)=>s+d.total_usd,0),
-  juan_pesos:  ALL.reduce((s,d)=>s+d.juan_pesos,0),
-  mari_pesos:  ALL.reduce((s,d)=>s+d.mari_pesos,0),
-  inversion:   ALL.reduce((s,d)=>s+d.inversion,0),
-  inv_usd:     ALL.reduce((s,d)=>s+d.inv_usd,0),
-  roas:        null, // computed below
-  dolar:       null,
-  neto_pesos:  ALL.reduce((s,d)=>s+d.neto_pesos,0),
-  neto_usd:    ALL.reduce((s,d)=>s+d.neto_usd,0),
-  fee_pesos:   ALL.reduce((s,d)=>s+d.fee_pesos,0),
-  fee_fijo:    null,
-  tokens:      ALL.reduce((s,d)=>s+d.tokens,0),
-  pend_ant: 0
-};  /* end _MONTHS_BACKUP — replaced at runtime */
+function buildHistFromMonths(monthsObj) {
+  const vals = Object.values(monthsObj);
+  const sum  = k => vals.reduce((s,d)=>s+(d[k]||0),0);
+  const h = {
+    label:'Histórico total', dolar:null, fee_fijo:null, roas:null, cierre:null,
+    leads:sum('leads'), ventas:sum('ventas'), total_pesos:sum('total_pesos'),
+    total_usd:sum('total_usd'), juan_pesos:sum('juan_pesos'), mari_pesos:sum('mari_pesos'),
+    inversion:sum('inversion'), inv_usd:sum('inv_usd'), neto_pesos:sum('neto_pesos'),
+    neto_usd:sum('neto_usd'), fee_pesos:sum('fee_pesos'), tokens:sum('tokens'), pend_ant:sum('pend_ant')
+  };
+  h.cierre = h.leads > 0 ? (h.ventas/h.leads*100) : null;
+  h.roas   = h.inversion > 0 ? h.total_pesos/h.inversion : null;
+  return h;
+}
+
+/* Runtime state — arranca con datos estáticos, se sobreescribe con Sheets si el fetch funciona */
+let MONTHS = {...STATIC_MONTHS};
+let HIST   = buildHistFromMonths(MONTHS);
 
 function getData(mes) { return mes === 'historico' ? HIST : (MONTHS[mes] || PLACEHOLDER); }
 
-/* Chart arrays populated after fetch */
+/* Chart arrays — inicializados con datos estáticos */
+let HIST_LABELS = Object.values(STATIC_MONTHS).map(d=>d.short);
+let HIST_PESOS  = Object.values(STATIC_MONTHS).map(d=>d.total_pesos);
+let HIST_USD    = Object.values(STATIC_MONTHS).map(d=>d.total_usd);
 
 /* Paleta de colores por tratamiento */
 const TRAT_COLORS = {
@@ -1209,86 +1209,79 @@ function updateChartColors() {
   buildEvChart();
 }
 
-/* ════ INIT — carga datos en vivo desde Google Sheets ════ */
-async function initDashboard() {
-  /* 1. Loading state */
-  document.querySelectorAll('.kpi-value').forEach(el => el.textContent = '...');
-  document.getElementById('donut-vendedor').innerHTML   = '<div style="text-align:center;padding:40px;color:var(--sub);font-size:13px">Cargando datos...</div>';
-  document.getElementById('donut-tratamiento').innerHTML = '';
+/* ════ RENDER con un conjunto de MONTHS dado ════ */
+function renderAll(monthsObj, tratObj, defaultMes) {
+  const sortedKeys = Object.keys(monthsObj).sort((a,b) => monthsObj[a].sortKey - monthsObj[b].sortKey);
 
+  /* Poblar selectores */
+  ['sel-dashboard','sel-honorarios'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '<option value="historico">📊 Histórico total</option>';
+    sortedKeys.forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = monthsObj[key].label;
+      if (key === defaultMes) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+
+  /* Arrays del gráfico */
+  HIST_LABELS = sortedKeys.map(k => monthsObj[k].short);
+  HIST_PESOS  = sortedKeys.map(k => monthsObj[k].total_pesos);
+  HIST_USD    = sortedKeys.map(k => monthsObj[k].total_usd);
+
+  /* Render */
+  renderKPIs(defaultMes);
+  renderHon(defaultMes);
+  buildVendorDonut(defaultMes);
+  buildTratamientoDonut(defaultMes);
+  buildEvChart();
+
+  document.getElementById('sub-vendedor').textContent =
+    monthsObj[defaultMes].label + ' · ventas reales en pesos';
+}
+
+/* ════ INIT ════ */
+async function initDashboard() {
+
+  /* PASO 1 — Renderizar inmediatamente con datos estáticos */
+  const staticKeys   = Object.keys(STATIC_MONTHS).sort((a,b)=>STATIC_MONTHS[a].sortKey-STATIC_MONTHS[b].sortKey);
+  const staticDefault = staticKeys[staticKeys.length - 1];
+  MONTHS = {...STATIC_MONTHS};
+  HIST   = buildHistFromMonths(MONTHS);
+  renderAll(MONTHS, TRAT_POR_MES, staticDefault);
+
+  /* PASO 2 — Intentar fetch de Sheets (sin bloquear el render ya hecho) */
   try {
-    /* 2. Fetch ambas hojas en paralelo */
     const [costosTxt, ventasTxt] = await Promise.all([
       fetchSheet('Costos Historico'),
       fetchSheet('Ventas Historico')
     ]);
 
-    /* 3. Parsear */
-    const costosRows = parseCSV(costosTxt).slice(1); // skip header
+    const costosRows = parseCSV(costosTxt).slice(1);
     const ventasRows = parseCSV(ventasTxt).slice(1);
 
-    /* 4. Construir objetos de datos */
-    MONTHS       = buildMonthsData(costosRows);
-    TRAT_POR_MES = buildTratData(ventasRows);
+    const freshMonths = buildMonthsData(costosRows);
+    if (Object.keys(freshMonths).length === 0) throw new Error('CSV vacío o sin fechas válidas');
 
-    /* 5. Ordenar meses cronológicamente */
-    const sortedKeys = Object.keys(MONTHS).sort((a,b) => MONTHS[a].sortKey - MONTHS[b].sortKey);
+    const freshTrat = buildTratData(ventasRows);
 
-    /* 6. Construir HIST (agregado) */
-    const ALL = sortedKeys.map(k => MONTHS[k]);
-    HIST.leads       = ALL.reduce((s,d)=>s+d.leads,0);
-    HIST.ventas      = ALL.reduce((s,d)=>s+d.ventas,0);
-    HIST.total_pesos = ALL.reduce((s,d)=>s+d.total_pesos,0);
-    HIST.total_usd   = ALL.reduce((s,d)=>s+d.total_usd,0);
-    HIST.juan_pesos  = ALL.reduce((s,d)=>s+d.juan_pesos,0);
-    HIST.mari_pesos  = ALL.reduce((s,d)=>s+d.mari_pesos,0);
-    HIST.inversion   = ALL.reduce((s,d)=>s+d.inversion,0);
-    HIST.inv_usd     = ALL.reduce((s,d)=>s+d.inv_usd,0);
-    HIST.neto_pesos  = ALL.reduce((s,d)=>s+d.neto_pesos,0);
-    HIST.neto_usd    = ALL.reduce((s,d)=>s+d.neto_usd,0);
-    HIST.fee_pesos   = ALL.reduce((s,d)=>s+d.fee_pesos,0);
-    HIST.tokens      = ALL.reduce((s,d)=>s+d.tokens,0);
-    HIST.pend_ant    = ALL.reduce((s,d)=>s+d.pend_ant,0);
-    HIST.dolar       = null; HIST.fee_fijo = null; HIST.roas = null;
-    HIST.cierre      = HIST.leads > 0 ? (HIST.ventas/HIST.leads*100) : null;
-    HIST.roas        = HIST.inversion > 0 ? HIST.total_pesos/HIST.inversion : null;
-    HIST.label       = 'Histórico total';
+    /* Actualizar estado global */
+    MONTHS       = freshMonths;
+    HIST         = buildHistFromMonths(MONTHS);
+    TRAT_POR_MES = freshTrat;
 
-    /* 7. Chart arrays */
-    HIST_LABELS = sortedKeys.map(k => MONTHS[k].short);
-    HIST_PESOS  = sortedKeys.map(k => MONTHS[k].total_pesos);
-    HIST_USD    = sortedKeys.map(k => MONTHS[k].total_usd);
+    const sortedKeys  = Object.keys(MONTHS).sort((a,b)=>MONTHS[a].sortKey-MONTHS[b].sortKey);
+    const defaultMes  = sortedKeys[sortedKeys.length - 1];
 
-    /* 8. Mes a mostrar = último mes completo (último de la lista) */
-    const defaultMes = sortedKeys[sortedKeys.length - 1];
-
-    /* 9. Poblar selectores con todos los meses disponibles */
-    ['sel-dashboard','sel-honorarios'].forEach(id => {
-      const sel = document.getElementById(id);
-      sel.innerHTML = '<option value="historico">📊 Histórico total</option>';
-      sortedKeys.forEach(key => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = MONTHS[key].label;
-        if (key === defaultMes) opt.selected = true;
-        sel.appendChild(opt);
-      });
-    });
-
-    /* 10. Render inicial */
-    renderKPIs(defaultMes);
-    renderHon(defaultMes);
-    buildVendorDonut(defaultMes);
-    buildTratamientoDonut(defaultMes);
-    buildEvChart();
-
-    /* Actualizar sub-título vendedor */
-    document.getElementById('sub-vendedor').textContent =
-      MONTHS[defaultMes].label + ' · ventas reales en pesos';
+    renderAll(MONTHS, TRAT_POR_MES, defaultMes);
+    console.log('✓ Datos actualizados desde Google Sheets. Último mes:', defaultMes);
 
   } catch(err) {
-    console.error('Error cargando datos:', err);
-    document.querySelectorAll('.kpi-value').forEach(el => el.textContent = 'Error');
+    console.warn('Sheets no disponible, usando datos estáticos:', err.message);
+    /* La página ya está renderizada con datos estáticos — no hace nada más */
   }
 }
 
