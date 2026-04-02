@@ -692,145 +692,8 @@
 
 <script>
 /* ════════════════════════════════════════
-   GOOGLE SHEETS — datos en vivo
-   Fuente: Costos Historico + Ventas Historico
+   DATA — estático, actualización manual mensual
 ════════════════════════════════════════ */
-const SID   = '1gRYhQK4ysFLxIVV8h_6LueOh8G_oo9IueVbj_J36SYQ';
-const PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
-
-/* --- CSV utils --- */
-function parseCSV(text) {
-  const rows = [];
-  for (const line of text.split('\n')) {
-    if (!line.trim()) continue;
-    const cols = []; let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { if (inQ && line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur=''; }
-      else cur += ch;
-    }
-    cols.push(cur.trim());
-    rows.push(cols);
-  }
-  return rows;
-}
-
-function cleanNum(s) {
-  if (!s) return 0;
-  s = String(s).replace(/[^0-9.\-]/g,'');
-  const parts = s.split('.');
-  if (parts.length > 2) s = parts.slice(0,-1).join('') + '.' + parts[parts.length-1];
-  const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
-}
-
-function normalizeTrat(t) {
-  const m = {'criolipolisis':'Criolipólisis','criolipólisis':'Criolipólisis','hifu facial':'Hifu Facial','hifu corporal':'Hifu Corporal','electrofit':'ElectroFit','lipolaser':'Lipolaser','emsculpt':'Emsculpt','velvet max':'Velvet Max','exilis corporal':'Exilis Corporal','exilis facial':'Exilis Facial','depilación':'Depilación','masaje linfático':'Masaje Linfático','membresia':'Membresia','membresía':'Membresia','limpiezas faciales':'Limpiezas Faciales','turnos consultas':'Turnos Consultas'};
-  return m[String(t).toLowerCase().trim()] || t;
-}
-
-async function fetchSheet(name) {
-  const url = `https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`;
-  try {
-    const r = await fetch(PROXY + encodeURIComponent(url));
-    const t = await r.text();
-    if (t.includes(',')) return t;
-    throw new Error('proxy failed');
-  } catch {
-    const r2 = await fetch(url);
-    return r2.text();
-  }
-}
-
-/* Month key: date "31/5/2025" → "may-25" */
-const MN = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-const ML = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-function dateToKey(s) {
-  const [,m,y] = s.split('/').map(Number);
-  return MN[m-1]+'-'+String(y).slice(2);
-}
-function dateToLabel(s) {
-  const [,m,y] = s.split('/').map(Number);
-  return ML[m-1]+' '+y;
-}
-function dateToShort(s) {
-  const [,m,y] = s.split('/').map(Number);
-  return ML[m-1].slice(0,3)+' '+String(y).slice(2);
-}
-function dateToSort(s) {
-  const [d,m,y] = s.split('/').map(Number);
-  return y*100+m;
-}
-
-/* Build MONTHS + HIST from Costos Historico rows */
-function buildMonthsData(rows) {
-  const MONTHS = {};
-  // Skip header rows — find first row where col 0 looks like a date
-  for (const row of rows) {
-    const raw = row[0];
-    if (!raw || !raw.includes('/')) continue;
-    const key   = dateToKey(raw);
-    const label = dateToLabel(raw);
-    MONTHS[key] = {
-      label,
-      short:      dateToShort(raw),
-      sortKey:    dateToSort(raw),
-      leads:      cleanNum(row[18]),
-      ventas:     cleanNum(row[19]),
-      cierre:     cleanNum(row[20]),
-      total_pesos:cleanNum(row[12]),
-      total_usd:  cleanNum(row[13]),
-      neto_pesos: cleanNum(row[14]),
-      neto_usd:   cleanNum(row[16]),
-      inversion:  cleanNum(row[7]),
-      inv_usd:    cleanNum(row[17]),
-      roas:       cleanNum(row[21]) || null,
-      dolar:      cleanNum(row[26]),
-      juan_pesos: cleanNum(row[28]),
-      mari_pesos: cleanNum(row[29]),
-      fee_pesos:  cleanNum(row[31]),
-      fee_fijo:   cleanNum(row[32]),
-      tokens:     cleanNum(row[33]),
-      pend_ant:   cleanNum(row[34]),
-    };
-  }
-  return MONTHS;
-}
-
-/* Build TRAT_POR_MES from Ventas Historico rows */
-function buildTratData(rows) {
-  const TRAT = { historico: {} };
-  for (const row of rows) {
-    const raw = row[0];
-    if (!raw || !raw.includes('/')) continue;
-    const key   = dateToKey(raw);
-    const trat  = normalizeTrat(row[2]);
-    const pesos = cleanNum(row[5]);
-    if (!pesos) continue;
-    if (!TRAT[key]) TRAT[key] = {};
-    TRAT[key][trat]       = (TRAT[key][trat]||0) + pesos;
-    TRAT.historico[trat]  = (TRAT.historico[trat]||0) + pesos;
-  }
-  return TRAT;
-}
-
-/* ─── RUNTIME STATE (will be populated after fetch) ─── */
-let MONTHS = {};
-let HIST   = {};
-let TRAT_POR_MES = { historico: {} };
-let HIST_LABELS  = [];
-let HIST_PESOS   = [];
-let HIST_USD     = [];
-let PLACEHOLDER = {   /* shown while loading */
-  label:'Cargando...', leads:0,ventas:0,cierre:0,total_pesos:0,total_usd:0,
-  juan_pesos:0,mari_pesos:0,inversion:0,inv_usd:0,roas:null,dolar:0,
-  neto_pesos:0,neto_usd:0,fee_pesos:0,fee_fijo:0,tokens:0,pend_ant:0
-};
-
-/* Kept so old code compiles while data loads */
-/* Datos estáticos de respaldo — siempre disponibles sin fetch */
 const STATIC_MONTHS = {
   'may-25':{ label:'Mayo 2025',   short:'May 25', sortKey:202505, leads:64,  ventas:17, cierre:26.56, total_pesos:189000,   total_usd:4548.74,  juan_pesos:116600,  mari_pesos:72400,   inversion:16439,    inv_usd:395.64,  roas:11.50, dolar:41.55, neto_pesos:52941,     neto_usd:1274.15,  fee_pesos:16620,    fee_fijo:800, tokens:0,     pend_ant:0      },
   'jun-25':{ label:'Junio 2025',  short:'Jun 25', sortKey:202506, leads:124, ventas:38, cierre:30.65, total_pesos:185390,   total_usd:4610.54,  juan_pesos:157700,  mari_pesos:27690,   inversion:20868,    inv_usd:518.98,  roas:8.88,  dolar:40.21, neto_pesos:26520,     neto_usd:659.54,   fee_pesos:35002,    fee_fijo:800, tokens:0,     pend_ant:117.41 },
@@ -845,8 +708,12 @@ const STATIC_MONTHS = {
   'mar-26':{ label:'Mar 2026',    short:'Mar 26', sortKey:202603, leads:29,  ventas:18, cierre:62.07, total_pesos:111040,   total_usd:2742.41,  juan_pesos:65380,   mari_pesos:45660,   inversion:3198.36,  inv_usd:78.99,   roas:34.72, dolar:40.49, neto_pesos:-9541.96,  neto_usd:-235.66,  fee_pesos:14383.60, fee_fijo:800, tokens:30,    pend_ant:57     }
 };
 
-function buildHistFromMonths(monthsObj) {
-  const vals = Object.values(monthsObj);
+/* MONTHS = alias de STATIC_MONTHS */
+const MONTHS = STATIC_MONTHS;
+
+/* HIST — agregado histórico */
+const HIST = (function() {
+  const vals = Object.values(MONTHS);
   const sum  = k => vals.reduce((s,d)=>s+(d[k]||0),0);
   const h = {
     label:'Histórico total', dolar:null, fee_fijo:null, roas:null, cierre:null,
@@ -858,18 +725,13 @@ function buildHistFromMonths(monthsObj) {
   h.cierre = h.leads > 0 ? (h.ventas/h.leads*100) : null;
   h.roas   = h.inversion > 0 ? h.total_pesos/h.inversion : null;
   return h;
-}
+})();
 
-/* Runtime state — arranca con datos estáticos, se sobreescribe con Sheets si el fetch funciona */
-let MONTHS = {...STATIC_MONTHS};
-let HIST   = buildHistFromMonths(MONTHS);
+function getData(mes) { return mes === 'historico' ? HIST : MONTHS[mes]; }
 
-function getData(mes) { return mes === 'historico' ? HIST : (MONTHS[mes] || PLACEHOLDER); }
-
-/* Chart arrays — inicializados con datos estáticos */
-let HIST_LABELS = Object.values(STATIC_MONTHS).map(d=>d.short);
-let HIST_PESOS  = Object.values(STATIC_MONTHS).map(d=>d.total_pesos);
-let HIST_USD    = Object.values(STATIC_MONTHS).map(d=>d.total_usd);
+let HIST_LABELS = [];
+let HIST_PESOS  = [];
+let HIST_USD    = [];
 
 /* Paleta de colores por tratamiento */
 const TRAT_COLORS = {
@@ -1330,9 +1192,10 @@ function updateChartColors() {
   buildEvChart();
 }
 
-/* ════ RENDER con un conjunto de MONTHS dado ════ */
-function renderAll(monthsObj, tratObj, defaultMes) {
-  const sortedKeys = Object.keys(monthsObj).sort((a,b) => monthsObj[a].sortKey - monthsObj[b].sortKey);
+/* ════ INIT — 100% estático, render inmediato ════ */
+(function() {
+  const sortedKeys = Object.keys(MONTHS).sort((a,b) => MONTHS[a].sortKey - MONTHS[b].sortKey);
+  const defaultMes = sortedKeys[sortedKeys.length - 1]; /* último mes = mar-26 */
 
   /* Poblar selectores */
   ['sel-dashboard','sel-honorarios'].forEach(id => {
@@ -1342,18 +1205,16 @@ function renderAll(monthsObj, tratObj, defaultMes) {
     sortedKeys.forEach(key => {
       const opt = document.createElement('option');
       opt.value = key;
-      opt.textContent = monthsObj[key].label;
+      opt.textContent = MONTHS[key].label;
       if (key === defaultMes) opt.selected = true;
       sel.appendChild(opt);
     });
   });
 
-  /* Arrays del gráfico */
-  HIST_LABELS = sortedKeys.map(k => monthsObj[k].short);
-  HIST_PESOS  = sortedKeys.map(k => monthsObj[k].total_pesos);
-  HIST_USD    = sortedKeys.map(k => monthsObj[k].total_usd);
+  HIST_LABELS = sortedKeys.map(k => MONTHS[k].short);
+  HIST_PESOS  = sortedKeys.map(k => MONTHS[k].total_pesos);
+  HIST_USD    = sortedKeys.map(k => MONTHS[k].total_usd);
 
-  /* Render */
   renderKPIs(defaultMes);
   renderHon(defaultMes);
   buildVendorDonut(defaultMes);
@@ -1361,52 +1222,8 @@ function renderAll(monthsObj, tratObj, defaultMes) {
   buildEvChart();
 
   document.getElementById('sub-vendedor').textContent =
-    monthsObj[defaultMes].label + ' · ventas reales en pesos';
-}
-
-/* ════ INIT ════ */
-async function initDashboard() {
-
-  /* PASO 1 — Renderizar inmediatamente con datos estáticos */
-  const staticKeys   = Object.keys(STATIC_MONTHS).sort((a,b)=>STATIC_MONTHS[a].sortKey-STATIC_MONTHS[b].sortKey);
-  const staticDefault = staticKeys[staticKeys.length - 1];
-  MONTHS = {...STATIC_MONTHS};
-  HIST   = buildHistFromMonths(MONTHS);
-  renderAll(MONTHS, TRAT_POR_MES, staticDefault);
-
-  /* PASO 2 — Intentar fetch de Sheets (sin bloquear el render ya hecho) */
-  try {
-    const [costosTxt, ventasTxt] = await Promise.all([
-      fetchSheet('Costos Historico'),
-      fetchSheet('Ventas Historico')
-    ]);
-
-    const costosRows = parseCSV(costosTxt).slice(1);
-    const ventasRows = parseCSV(ventasTxt).slice(1);
-
-    const freshMonths = buildMonthsData(costosRows);
-    if (Object.keys(freshMonths).length === 0) throw new Error('CSV vacío o sin fechas válidas');
-
-    const freshTrat = buildTratData(ventasRows);
-
-    /* Actualizar estado global */
-    MONTHS       = freshMonths;
-    HIST         = buildHistFromMonths(MONTHS);
-    TRAT_POR_MES = freshTrat;
-
-    const sortedKeys  = Object.keys(MONTHS).sort((a,b)=>MONTHS[a].sortKey-MONTHS[b].sortKey);
-    const defaultMes  = sortedKeys[sortedKeys.length - 1];
-
-    renderAll(MONTHS, TRAT_POR_MES, defaultMes);
-    console.log('✓ Datos actualizados desde Google Sheets. Último mes:', defaultMes);
-
-  } catch(err) {
-    console.warn('Sheets no disponible, usando datos estáticos:', err.message);
-    /* La página ya está renderizada con datos estáticos — no hace nada más */
-  }
-}
-
-initDashboard();
+    MONTHS[defaultMes].label + ' · ventas reales en pesos';
+})();
 </script>
 </body>
 </html>
